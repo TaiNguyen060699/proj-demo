@@ -4,10 +4,10 @@ This project demonstrates the implementation of an infinite scrolling product li
 
 ## Features
 
-**Infinite Scrolling**: The list automatically fetches the next set of 20 products when the user scrolls to the end.
-**Product Display**: The product list is displayed with relevant information, including product name, price, and image.
-**Search Functionality**: Users can search for products by entering the product name in the search input. The product list updates dynamically as the user types.
-**Data Deserialization**: Products data is deserialized after being fetched from the API.
+- **Infinite Scrolling**: The list automatically fetches the next set of 20 products when the user scrolls to the end.
+- **Product Display**: The product list is displayed with relevant information, including product name, price, and image.
+- **Search Functionality**: Users can search for products by entering the product name in the search input. The product list updates dynamically as the user types.
+- **Data Deserialization**: Products data is deserialized after being fetched from the API.
 
 ## Installation
 
@@ -37,9 +37,9 @@ npm run dev
 │   ├── repositories
 │   │   ├── api.ts
 │   │   ├── constants.vue
-│   │   ├── http.vue
+│   │   └── http.vue
 │   ├── types
-│   │   ├── index.ts
+│   │   └──  index.ts
 │   ├── App.vue
 │   ├── main.vue
 │   └── router.vue
