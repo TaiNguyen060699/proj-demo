@@ -13,7 +13,7 @@ This project demonstrates the implementation of an infinite scrolling product li
 
 ```bash
 # Clone the repository
-git clone git@github.com:TaiNguyen060699/proj-infinite-scroll-and-search-.git
+git clone git@github.com:TaiNguyen060699/proj-demo.git
 
 # Install dependencies
 npm install
