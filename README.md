@@ -43,11 +43,13 @@ npm run dev
 │   ├── App.vue
 │   ├── main.vue
 │   └── router.vue
+├── eslintrc.cjs
 ├── README.md
 ├── package-lock.json
 ├── package.json
-├── .prettierrc.json
+├── prettierrc.json
 ├── tsconfig.json
+├── vite.config.ts
 ```
 ## Contributor
 
