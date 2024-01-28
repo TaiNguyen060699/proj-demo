@@ -1,10 +1,13 @@
 import { AXIOS } from "./http";
 import { END_POINTS } from "./constants";
 
-export const fetchProducts = async(page: number, limit: number): Promise<any> => {
+export const fetchProducts = async(query: any): Promise<any> => {
   try {
     const response = await AXIOS.get(`${END_POINTS.PRODUCTS}`, {
-      params: { page, limit },
+      params: { 
+        page: query.page,
+        limit: query.limit
+      },
     });
     return response.data;
   } catch (error) {
@@ -13,10 +16,14 @@ export const fetchProducts = async(page: number, limit: number): Promise<any> =>
   }
 }
 
-export const searchProducts = async (query: string, page: number): Promise<any> => {
+export const searchProducts = async (query: any): Promise<any> => {
   try {
     const response = await AXIOS.get(`${END_POINTS.SEARCH_PRODUCTS}`, {
-      params: { q: query, page },
+      params: { 
+        q: query.q, 
+        page: query.page,
+        limit: query.limit
+      },
     });
     return response.data;
   } catch (error) {

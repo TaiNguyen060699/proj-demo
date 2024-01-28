@@ -5,7 +5,7 @@
     </div>
     <LoadingSpinner class="homepage__loading-spinner" v-if="searchLoading" />
     <div class="homepage__product" v-if="products.length > 0">
-      <div v-for="product in products" :key="product.id" class="homepage__product-item">
+      <div v-for="(product, key) in products" :key="key" class="homepage__product-item">
         <ProductCard :product="product" />
       </div>
       <LoadingProgress style="width: 100%" v-if="loading" />
@@ -17,7 +17,7 @@
 
 <script lang="ts" setup>
 import * as _ from 'lodash'
-import { ref, onMounted, onUnmounted, watch, watchEffect  } from 'vue'
+import { ref, onMounted, onUnmounted, watch, watchEffect } from 'vue'
 import type { IProducts } from '@/types'
 import { useRouter, useRoute } from 'vue-router'
 import { fetchProducts, searchProducts } from '@/repositories/api'
@@ -33,12 +33,14 @@ const pageNumber = ref<number>(1)
 const loading = ref<boolean>(false)
 const searchLoading = ref<boolean>(false)
 const isSearching = ref<boolean>(false)
+const isLoadMore = ref<boolean>(false)
+const LIMIT = 20
 
 const router = useRouter()
 const route = useRoute()
 
 onMounted(() => {
-  checkInitialQuery();
+  reloadProducts()
   window.addEventListener('scroll', handleScroll)
 })
 
@@ -49,64 +51,91 @@ onUnmounted(() => {
 watch(keyword, (value) => {
   if (value.trim() === '') {
     router.push(route.path)
-    loadProducts();
   } else {
-    router.push({ query: {q: value }})
-    handleSearch();
+    router.push({ query: { q: value } })
+    pageNumber.value = 1
   }
+  handleSearch();
 })
 
 watchEffect(() => {
-  const query = route.query.q;
+  const query = route.query.q
   if (query !== undefined) {
-    keyword.value = query as string;
+    keyword.value = query as string
   }
-});
-const loadProducts = async () => {
+})
+const loadProducts = async (loadMore?: boolean) => {
   try {
     loading.value = true
-    const pageFromRoute = Number(route?.query?.page) || 1
-    const response = isSearching.value
-      ? await searchProducts(keyword.value, pageFromRoute)
-      : await fetchProducts(pageFromRoute, 20)
+    let query = route.query
+
+    if (loadMore) {
+      pageNumber.value = pageNumber.value + 1
+      isLoadMore.value = true
+    }
+
+    if (pageNumber.value) {
+      let params = {
+        page: pageNumber.value,
+        limit: LIMIT
+      }
+
+      query = Object.assign({}, query, params)
+    }
+
+    const response = await fetchProducts(query)
     const data: IProducts[] = response?.products
     products.value = [...products.value, ...data]
-    pageNumber.value += 1
   } catch (error) {
     console.error('Error fetching products:', error)
   } finally {
+    isLoadMore.value = false
     loading.value = false
   }
 }
 
-const handleSearch = _.debounce(async () => {
+const handleSearch = _.debounce(async (loadMore?: boolean) => {
   try {
     searchLoading.value = true
-    pageNumber.value = 1
-    isSearching.value = true;
-    const searchData: IProducts = await searchProducts(keyword.value, pageNumber.value)
-    products.value = searchData.products
+    isSearching.value = true
+    let query = route.query
+
+    if (loadMore) {
+      pageNumber.value = pageNumber.value + 1
+      isLoadMore.value = true
+    }
+
+    if (pageNumber.value) {
+      let params = {
+        q: keyword.value,
+        page: pageNumber.value,
+        limit: LIMIT
+      }
+
+      query = Object.assign({}, query, params)
+    }
+    const response = await searchProducts(query)
+    const data: IProducts[] = response.products
+    products.value = [...data]
   } catch (error) {
     console.error('Error searching products:', error)
   } finally {
+    isLoadMore.value = false
     searchLoading.value = false
   }
 }, 500)
 
-const handleScroll = () => {
+const handleScroll = async () => {
   const { scrollTop, clientHeight, scrollHeight } = document.documentElement
   if (scrollTop + clientHeight >= scrollHeight - 10) {
-    loadProducts()
+    isSearching.value ? await handleSearch(true) : await loadProducts(true)
   }
 }
 
-const checkInitialQuery = () => {
-  const query = route.query.q;
-  if (query) {
-    keyword.value = query as string;
-    loadProducts();
-  }
-};
+const reloadProducts = async () => {
+  pageNumber.value = 1
+  await loadProducts(false)
+}
 </script>
 
 <style lang="scss" scoped>
