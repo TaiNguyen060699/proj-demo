@@ -64,6 +64,7 @@ watchEffect(() => {
     keyword.value = query as string
   }
 })
+  
 const loadProducts = async (loadMore?: boolean) => {
   try {
     loading.value = true
